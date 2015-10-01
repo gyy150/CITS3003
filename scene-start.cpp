@@ -17,7 +17,7 @@ GLint windowHeight=640, windowWidth=960;
 // This file contains parts of the code that you shouldn't need to modify (but, you can).
 #include "gnatidread.h"
 
-using namespace std;        // Import the C++ standard functions (e.g., min) 
+using namespace std;        // Import the C++ standard functions (e.g., min)
 
 
 // IDs for the GLSL program and GLSL variables.
@@ -34,7 +34,7 @@ mat4 view; // View matrix - set in the display function.
 
 // These are used to set the window title
 char lab[] = "Project1";
-char *programName = NULL; // Set in main 
+char *programName = NULL; // Set in main
 int numDisplayCalls = 0; // Used to calculate the number of frames per second
 
 // -----Meshes----------------------------------------------------------
@@ -77,7 +77,7 @@ int toolObj = -1;    // The object currently being modified
 
 
 //------------------------------------------------------------
-// Loads a texture by number, and binds it for later use.    
+// Loads a texture by number, and binds it for later use.
 void loadTextureIfNotAlreadyLoaded(int i) {
     if(textures[i] != NULL) return; // The texture is already loaded.
 
@@ -103,8 +103,8 @@ void loadTextureIfNotAlreadyLoaded(int i) {
 
 //------Mesh loading ----------------------------------------------------
 //
-// The following uses the Open Asset Importer library via loadMesh in 
-// gnatidread.h to load models in .x format, including vertex positions, 
+// The following uses the Open Asset Importer library via loadMesh in
+// gnatidread.h to load models in .x format, including vertex positions,
 // normals, and texture coordinates.
 // You shouldn't need to modify this - it's called from drawMesh below.
 
@@ -132,7 +132,7 @@ void loadMeshIfNotAlreadyLoaded(int meshNumber) {
                   NULL, GL_STATIC_DRAW );
 
     int nVerts = mesh->mNumVertices;
-    // Next, we load the position and texCoord data in parts.    
+    // Next, we load the position and texCoord data in parts.
     glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(float)*3*nVerts, mesh->mVertices );
     glBufferSubData( GL_ARRAY_BUFFER, sizeof(float)*3*nVerts, sizeof(float)*3*nVerts, mesh->mTextureCoords[0] );
     glBufferSubData( GL_ARRAY_BUFFER, sizeof(float)*6*nVerts, sizeof(float)*3*nVerts, mesh->mNormals);
@@ -150,7 +150,7 @@ void loadMeshIfNotAlreadyLoaded(int meshNumber) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferId[0]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * mesh->mNumFaces * 3, elements, GL_STATIC_DRAW);
 
-    // vPosition it actually 4D - the conversion sets the fourth dimension (i.e. w) to 1.0                 
+    // vPosition it actually 4D - the conversion sets the fourth dimension (i.e. w) to 1.0
     glVertexAttribPointer( vPosition, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
     glEnableVertexAttribArray( vPosition );
 
@@ -167,6 +167,8 @@ void loadMeshIfNotAlreadyLoaded(int meshNumber) {
 // --------------------------------------
 
 static void mouseClickOrScroll(int button, int state, int x, int y) {
+
+
     if(button==GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         if(glutGetModifiers()!=GLUT_ACTIVE_SHIFT) activateTool(button);
         else activateTool(GLUT_LEFT_BUTTON);
@@ -207,21 +209,23 @@ static void adjustCamrotsideViewdist(vec2 cv) {
 static void adjustcamSideUp(vec2 su) {
     camRotSidewaysDeg+=su[0]; camRotUpAndOverDeg+=su[1];
 }
-    
+
 static void adjustLocXZ(vec2 xz) {
-    sceneObjs[toolObj].loc[0]+=xz[0]; sceneObjs[toolObj].loc[2]+=xz[1];
+    cout << xz << endl;
+    cout << camRotZ() << endl;
+    sceneObjs[toolObj].loc[0]+=xz[0]; sceneObjs[toolObj].loc[2]+=xz[1];   //changing the x coordinate  + changing the z coordinate
 }
 
 static void adjustScaleY(vec2 sy) {
     sceneObjs[toolObj].scale+=sy[0]; sceneObjs[toolObj].loc[1]+=sy[1];
 }
 
-//------Set the mouse buttons to rotate the camera around the centre of the scene. 
+//------Set the mouse buttons to rotate the camera around the centre of the scene.
 static void doRotate() {
     setToolCallbacks(adjustCamrotsideViewdist, mat2(400,0,0,-2),
                      adjustcamSideUp, mat2(400, 0, 0,-90) );
 }
-                                     
+
 //------Add an object to the scene
 
 static void addObject(int id) {
@@ -271,11 +275,11 @@ void init( void ) {
 
     glUseProgram( shaderProgram ); CheckError();
 
-    // Initialize the vertex position attribute from the vertex shader        
+    // Initialize the vertex position attribute from the vertex shader
     vPosition = glGetAttribLocation( shaderProgram, "vPosition" );
     vNormal = glGetAttribLocation( shaderProgram, "vNormal" ); CheckError();
 
-    // Likewise, initialize the vertex texture coordinates attribute.    
+    // Likewise, initialize the vertex texture coordinates attribute.
     vTexCoord = glGetAttribLocation( shaderProgram, "vTexCoord" ); CheckError();
 
     projectionU = glGetUniformLocation(shaderProgram, "Projection");
@@ -313,7 +317,7 @@ void drawMesh(SceneObject sceneObj) {
     glBindTexture(GL_TEXTURE_2D, textureIDs[sceneObj.texId]);
 
     // Texture 0 is the only texture type in this program, and is for the rgb colour of the
-    // surface but there could be separate types for, e.g., specularity and normals. 
+    // surface but there could be separate types for, e.g., specularity and normals.
     glUniform1i( glGetUniformLocation(shaderProgram, "texture"), 0 );
 
     // Set the texture scale for the shaders
@@ -326,8 +330,11 @@ void drawMesh(SceneObject sceneObj) {
     // Set the model matrix - this should combine translation, rotation and scaling based on what's
     // in the sceneObj structure (see near the top of the program).
 
-    mat4 model = Translate(sceneObj.loc) * Scale(sceneObj.scale);
+    //******************Part B*************************************
+    mat4 model = Translate(sceneObj.loc) * RotateZ(sceneObj.angles[2]) * RotateY(sceneObj.angles[1]) * RotateX(sceneObj.angles[0])  * Scale(sceneObj.scale);
+    //*************************************************************
 
+    //mat4 model = Translate(sceneObj.loc) * Scale(sceneObj.scale);
 
     // Set the model-view matrix for the shaders
     glUniformMatrix4fv( modelViewU, 1, GL_TRUE, view * model );
@@ -351,9 +358,16 @@ void display( void ) {
     // Set the view matrix.    To start with this just moves the camera backwards.    You'll need to
     // add appropriate rotations.
 
-    view = Translate(0.0, 0.0, -viewDist);
+    //*************Part A*************************************
 
-    SceneObject lightObj1 = sceneObjs[1]; 
+    //view = Translate(0.0, 0.0, -viewDist);
+    view = Translate(0.0, 0.0, -viewDist) * RotateX(camRotUpAndOverDeg * 2) * RotateY(camRotSidewaysDeg * 2) ;
+    glUniformMatrix4fv( modelViewU, 1, GL_TRUE, view );
+
+
+    //********************************************************
+
+    SceneObject lightObj1 = sceneObjs[1];
     vec4 lightPosition = view * lightObj1.loc ;
 
     glUniform4fv( glGetUniformLocation(shaderProgram, "LightPosition"), 1, lightPosition); CheckError();
@@ -447,6 +461,20 @@ static int createArrayMenu(int size, const char menuEntries[][128], void(*menuFn
     return menuId;
 }
 
+//******************Part C***********************
+static void adjust_Ambient_Diffuse(vec2 angle_yx) {
+    cout << angle_yx << endl;
+    sceneObjs[currObject].ambient+=angle_yx[0];
+    sceneObjs[currObject].diffuse+=angle_yx[1];
+}
+
+static void adjust_Specular_Shine(vec2 az_ts) {
+    sceneObjs[currObject].specular+=az_ts[0];
+    sceneObjs[currObject].shine+=az_ts[1];
+}
+//***********************************************
+
+
 static void materialMenu(int id) {
     deactivateTool();
     if(currObject<0) return;
@@ -455,24 +483,37 @@ static void materialMenu(int id) {
         setToolCallbacks(adjustRedGreen, mat2(1, 0, 0, 1),
                          adjustBlueBrightness, mat2(1, 0, 0, 1) );
     }
-    // You'll need to fill in the remaining menu items here.                                                
-                                            
+
+    //*****************Part C*****************************
+    if(id == 20 && currObject>=0){
+        toolObj=currObject;
+        setToolCallbacks(adjust_Ambient_Diffuse, mat2(1, 0, 0, 1),
+                         adjust_Specular_Shine,  mat2(1, 0, 0, 25) );
+    }
+    //**********************************************
+
+    // You'll need to fill in the remaining menu items here.
+
     else { printf("Error in materialMenu\n"); }
 }
 
 static void adjustAngleYX(vec2 angle_yx) {
+    cout << angle_yx << endl;
     sceneObjs[currObject].angles[1]+=angle_yx[0];
-    sceneObjs[currObject].angles[0]+=angle_yx[1];
+    sceneObjs[currObject].angles[2]+=angle_yx[1];           //changed the angle it rotate
 }
 
 static void adjustAngleZTexscale(vec2 az_ts) {
-    sceneObjs[currObject].angles[2]+=az_ts[0];
+    sceneObjs[currObject].angles[0]+=az_ts[0];              //changed the angle it rotate
     sceneObjs[currObject].texScale+=az_ts[1];
 }
 
 
+
+
 static void mainmenu(int id) {
     deactivateTool();
+
     if(id == 41 && currObject>=0) {
         toolObj=currObject;
         setToolCallbacks(adjustLocXZ, camRotZ(),
@@ -492,7 +533,7 @@ static void makeMenu() {
 
     int materialMenuId = glutCreateMenu(materialMenu);
     glutAddMenuEntry("R/G/B/All",10);
-    glutAddMenuEntry("UNIMPLEMENTED: Ambient/Diffuse/Specular/Shine",20);
+    glutAddMenuEntry("Ambient/Diffuse/Specular/Shine",20);          //changed the menue entry text
 
     int texMenuId = createArrayMenu(numTextures, textureMenuEntries, texMenu);
     int groundMenuId = createArrayMenu(numTextures, textureMenuEntries, groundMenu);
@@ -544,16 +585,36 @@ void reshape( int width, int height ) {
     glViewport(0, 0, width, height);
 
     // You'll need to modify this so that the view is similar to that in the sample solution.
-    // In particular: 
+    // In particular:
     //     - the view should include "closer" visible objects (slightly tricky)
     //     - when the width is less than the height, the view should adjust so that the same part
     //         of the scene is visible across the width of the window.
 
-    GLfloat nearDist = 0.2;
-    projection = Frustum(-nearDist*(float)width/(float)height,
-                         nearDist*(float)width/(float)height,
-                         -nearDist, nearDist,
-                         nearDist, 100.0);
+    //**********************************Part  D&E ***************************
+    GLfloat nearDist = 0.02;                                        //change the near to smaller value
+    cout << "....inside the reshape function, initialising projection matrix" << endl;
+    cout << width << " " <<height<< endl;
+    if(width > height){
+
+        projection = Frustum(-nearDist*(float)width/(float)height,
+                             nearDist*(float)width/(float)height,
+                             -nearDist, nearDist,
+                             nearDist, 100.0);
+
+    }
+    else{
+        /*
+        projection = Frustum(-nearDist*(float)width/(float)height,
+                             nearDist*(float)width/(float)height,
+                             -nearDist*(float)height/(float)width, nearDist*(float)height/(float)width,
+                             nearDist, 100.0);
+        */
+        projection = Frustum(-nearDist,
+                             nearDist,
+                             -nearDist*(float)height/(float)width, nearDist*(float)height/(float)width,
+                             nearDist, 100.0);
+    }
+    //**********************************Part E***************************
 }
 
 //----------------------------------------------------------------------------
@@ -623,7 +684,7 @@ int main( int argc, char* argv[] )
     glutMouseFunc( mouseClickOrScroll );
     glutPassiveMotionFunc(mousePassiveMotion);
     glutMotionFunc( doToolUpdateXY );
- 
+
     glutReshapeFunc( reshape );
     glutTimerFunc(1000, timer, 1); CheckError();
 
