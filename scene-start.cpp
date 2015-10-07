@@ -289,14 +289,25 @@ void init( void ) {
     addObject(0); // Square for the ground
     sceneObjs[0].loc = vec4(0.0, 0.0, 0.0, 1.0);
     sceneObjs[0].scale = 10.0;
-    sceneObjs[0].angles[0] = 90.0; // Rotate it.
+    //*****************Part F*****************************
+    sceneObjs[0].angles[0] = 270.0; // Rotate it to 270 instead, so that the normal of ground can have postive value when dot with light
+    //sceneObjs[0].angles[0] = 90.0; // Rotate it.
+    //****************************************************
     sceneObjs[0].texScale = 5.0; // Repeat the texture.
-
     addObject(55); // Sphere for the first light
     sceneObjs[1].loc = vec4(2.0, 1.0, 1.0, 1.0);
     sceneObjs[1].scale = 0.1;
     sceneObjs[1].texId = 0; // Plain texture
     sceneObjs[1].brightness = 0.2; // The light's brightness is 5 times this (below).
+
+    //*****************Part I*****************************
+    addObject(55); // Sphere for the second light
+    //sceneObjs[2].loc = vec4(4.0, 2.0, 2.0, 2.0);              //notice set the last number to 2 have effect on all multiplication   when multiplicate it with other matrix, it would translate it to somewhere else
+    sceneObjs[2].loc = vec4(4.0, 2.0, 2.0, 1.0);
+    sceneObjs[2].scale = 0.3;
+    sceneObjs[2].texId = 0; // Plain texture
+    sceneObjs[2].brightness = 0.4;
+    //****************************************************
 
     addObject(rand() % numMeshes); // A test mesh
 
@@ -339,7 +350,6 @@ void drawMesh(SceneObject sceneObj) {
     // Set the model-view matrix for the shaders
     glUniformMatrix4fv( modelViewU, 1, GL_TRUE, view * model );
 
-
     // Activate the VAO for a mesh, loading if needed.
     loadMeshIfNotAlreadyLoaded(sceneObj.meshId); CheckError();
     glBindVertexArray( vaoIDs[sceneObj.meshId] ); CheckError();
@@ -369,13 +379,28 @@ void display( void ) {
 
     SceneObject lightObj1 = sceneObjs[1];
     vec4 lightPosition = view * lightObj1.loc ;
-
+    cout << "light1" << lightPosition << endl;
     glUniform4fv( glGetUniformLocation(shaderProgram, "LightPosition"), 1, lightPosition); CheckError();
+    //*****************Part I*****************************
+    SceneObject lightObj2 = sceneObjs[2];
+    vec4 lightPosition2 = view * lightObj2.loc ;
+    cout << "light2"  << lightPosition2 << endl;
+    glUniform4fv( glGetUniformLocation(shaderProgram, "LightPosition2"), 1, lightPosition2); CheckError();
+    //****************************************************
 
     for(int i=0; i<nObjects; i++) {
         SceneObject so = sceneObjs[i];
 
         vec3 rgb = so.rgb * lightObj1.rgb * so.brightness * lightObj1.brightness * 2.0;
+
+        //*****************Part I*****************************
+        vec3 rgb2 = so.rgb * lightObj2.rgb * so.brightness * lightObj2.brightness * 2.0;
+        glUniform3fv( glGetUniformLocation(shaderProgram, "AmbientProduct2"), 1, so.ambient * rgb2 ); CheckError();
+        glUniform3fv( glGetUniformLocation(shaderProgram, "DiffuseProduct2"), 1, so.diffuse * rgb2 );
+        glUniform3fv( glGetUniformLocation(shaderProgram, "SpecularProduct2"), 1, so.specular * rgb2 );
+        CheckError();
+        //****************************************************
+
         glUniform3fv( glGetUniformLocation(shaderProgram, "AmbientProduct"), 1, so.ambient * rgb ); CheckError();
         glUniform3fv( glGetUniformLocation(shaderProgram, "DiffuseProduct"), 1, so.diffuse * rgb );
         glUniform3fv( glGetUniformLocation(shaderProgram, "SpecularProduct"), 1, so.specular * rgb );
@@ -436,6 +461,19 @@ static void lightMenu(int id) {
         setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
                          adjustBlueBrightness, mat2(1.0, 0, 0, 1.0) );
     }
+
+    //*****************Part I*****************************
+    else if(id == 80) {
+        toolObj = 2;                            //the second light
+        setToolCallbacks(adjustLocXZ, camRotZ(),
+                         adjustBrightnessY, mat2( 1.0, 0.0, 0.0, 10.0) );
+
+    } else if(id>=81 && id<=84) {
+        toolObj = 2;
+        setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
+                         adjustBlueBrightness, mat2(1.0, 0, 0, 1.0) );
+    }
+    //****************************************************
 
     else { printf("Error in lightMenu\n");
         exit(1);
