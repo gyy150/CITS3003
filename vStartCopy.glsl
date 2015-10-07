@@ -20,7 +20,7 @@ void main()
     vec3 pos = (ModelView * vPosition).xyz;
 
 
-    // The vector to the light from the vertex    
+    // The vector to the light from the vertex
     vec3 Lvec = LightPosition.xyz - pos;
 
     // Unit direction vectors for Blinn-Phong shading calculation
@@ -39,10 +39,10 @@ void main()
 
     float Ks = pow( max(dot(N, H), 0.0), Shininess );
     vec3  specular = Ks * SpecularProduct;
-    
+
     if( dot(L, N) < 0.0 ) {
 	specular = vec3(0.0, 0.0, 0.0);
-    } 
+    }
 
     // globalAmbient is independent of distance from the light source
     vec3 globalAmbient = vec3(0.1, 0.1, 0.1);
