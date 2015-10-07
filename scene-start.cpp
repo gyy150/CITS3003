@@ -226,6 +226,40 @@ static void doRotate() {
                      adjustcamSideUp, mat2(400, 0, 0,-90) );
 }
 
+
+//------Duplicate object to the scene
+
+static void dupeObject() {
+
+    //get new position
+    vec2 currPos = currMouseXYworld(camRotSidewaysDeg);
+    sceneObjs[nObjects].loc[0] = currPos[0];
+    sceneObjs[nObjects].loc[1] = 0.0;
+    sceneObjs[nObjects].loc[2] = currPos[1];
+    sceneObjs[nObjects].loc[3] = 1.0;
+
+        sceneObjs[nObjects].scale = 0.005;
+
+    sceneObjs[nObjects].rgb[0] = 0.7; sceneObjs[nObjects].rgb[1] = 0.7;
+    sceneObjs[nObjects].rgb[2] = 0.7; sceneObjs[nObjects].brightness = 1.0;
+
+    sceneObjs[nObjects].diffuse = 1.0; sceneObjs[nObjects].specular = 0.5;
+    sceneObjs[nObjects].ambient = 0.7; sceneObjs[nObjects].shine = 10.0;
+
+    sceneObjs[nObjects].angles[0] = 0.0; sceneObjs[nObjects].angles[1] = 180.0;
+    sceneObjs[nObjects].angles[2] = 0.0;
+
+    sceneObjs[nObjects].meshId = sceneObjs[currObject].meshId;
+    sceneObjs[nObjects].texId = sceneObjs[currObject].texId;
+    sceneObjs[nObjects].texScale = 2.0;
+
+    toolObj = currObject = nObjects++;
+    setToolCallbacks(adjustLocXZ, camRotZ(),
+                     adjustScaleY, mat2(0.05, 0, 0, 10.0) );
+    glutPostRedisplay();
+}
+
+
 //------Add an object to the scene
 
 static void addObject(int id) {
@@ -295,10 +329,10 @@ void init( void ) {
     //****************************************************
     sceneObjs[0].texScale = 5.0; // Repeat the texture.
     addObject(55); // Sphere for the first light
-    sceneObjs[1].loc = vec4(2.0, 1.0, 1.0, 1.0);
+    sceneObjs[1].loc = vec4(2.0, 2.5, 1.0, 1.0);
     sceneObjs[1].scale = 0.1;
     sceneObjs[1].texId = 0; // Plain texture
-    sceneObjs[1].brightness = 0.2; // The light's brightness is 5 times this (below).
+    sceneObjs[1].brightness = 5; // The light's brightness is 5 times this (below).
 
     //*****************Part I*****************************
     addObject(55); // Sphere for the second light
@@ -379,12 +413,10 @@ void display( void ) {
 
     SceneObject lightObj1 = sceneObjs[1];
     vec4 lightPosition = view * lightObj1.loc ;
-    cout << "light1" << lightPosition << endl;
     glUniform4fv( glGetUniformLocation(shaderProgram, "LightPosition"), 1, lightPosition); CheckError();
     //*****************Part I*****************************
     SceneObject lightObj2 = sceneObjs[2];
     vec4 lightPosition2 = view * lightObj2.loc ;
-    cout << "light2"  << lightPosition2 << endl;
     glUniform4fv( glGetUniformLocation(shaderProgram, "LightPosition2"), 1, lightPosition2); CheckError();
     //****************************************************
 
@@ -564,7 +596,12 @@ static void mainmenu(int id) {
                          adjustAngleZTexscale, mat2(400, 0, 0, 15) );
     }
     if(id == 99) exit(0);
+    if(id == 42){
+	dupeObject();
+    }
 }
+
+
 
 static void makeMenu() {
     int objectId = createArrayMenu(numMeshes, objectMenuEntries, objectMenu);
@@ -584,6 +621,11 @@ static void makeMenu() {
 
     glutCreateMenu(mainmenu);
     glutAddMenuEntry("Rotate/Move Camera",50);
+    
+    /************* PART J **********************/
+    glutAddMenuEntry("Duplicate",42);
+    /*******************************************/
+    
     glutAddSubMenu("Add object", objectId);
     glutAddMenuEntry("Position/Scale", 41);
     glutAddMenuEntry("Rotation/Texture Scale", 55);
@@ -704,9 +746,9 @@ int main( int argc, char* argv[] )
     glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH );
     glutInitWindowSize( windowWidth, windowHeight );
 
-    glutInitContextVersion( 3, 2);
-    //glutInitContextProfile( GLUT_CORE_PROFILE );                // May cause issues, sigh, but you
-    glutInitContextProfile( GLUT_COMPATIBILITY_PROFILE ); // should still use only OpenGL 3.2 Core
+   // glutInitContextVersion( 3, 2);
+    glutInitContextProfile( GLUT_CORE_PROFILE );                // May cause issues, sigh, but you
+    //glutInitContextProfile( GLUT_COMPATIBILITY_PROFILE ); // should still use only OpenGL 3.2 Core
     // features.
     glutCreateWindow( "Initialising..." );
 

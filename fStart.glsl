@@ -1,4 +1,4 @@
-#version 150
+#version 130
 uniform vec4 LightPosition;
 uniform vec4 LightPosition2;
 uniform float Shininess;
@@ -19,7 +19,7 @@ main()
     // The vector to the light from the vertex
     vec3 Lvec = LightPosition.xyz - pos;
     //light
-    vec3 Lvec2 = LightPosition2.xyz ;
+    vec3 Lvec2 = LightPosition2.xyz;
     //***************Part F***********************
     float a = 1.5;
     float b = 0.2;
@@ -31,7 +31,7 @@ main()
     //********************************************
     // Unit direction vectors for Blinn-Phong shading calculation
     vec3 L = normalize( Lvec );   // Direction to the light source
-    vec3 L2 = normalize( Lvec2 - pos );   // Direction to the second light source is constant, equals to LightPosition2.xyz
+    vec3 L2 = normalize( Lvec2 );   // Direction to the second light source is constant, equals to LightPosition2.xyz
     vec3 E = normalize( -pos );   // Direction to the eye/camera
     vec3 H = normalize( L + E );  // Halfway vector
     vec3 H2 = normalize( L2 + E );  // Halfway vector fro the scond light source
@@ -46,7 +46,7 @@ main()
     vec3  diffuse2 = Kd2*DiffuseProduct2;
 
     float Ks = pow( max(dot(v_Normal, H), 0.0), Shininess );
-    float Ks2 = pow( max(dot(v_Normal, H2), 0.0), Shininess );
+    float Ks2 = pow( max(dot(v_Normal, H), 0.0), Shininess );
     //********************Part H*********************
     vec3 white = vec3(0.5,0.5,0.5);             //make the specular component whiter
     vec3  specular = Ks * (SpecularProduct + white );
@@ -69,6 +69,6 @@ main()
     //********************************************
     color.a = 1.0;
     //********************Part H*********************
-    fColor = color * texture2D( texture, texCoord * 2.0 ) + vec4(light_attenuation * specular , 0.0) + vec4(light_attenuation2 * specular2 , 0.0)        ;  //specular component doesnot depend on texture
+    fColor = color * texture2D( texture, texCoord * 2.0 ) + vec4(light_attenuation * specular , 1.0) + vec4(light_attenuation2 * specular2 , 1.0)        ;  //specular component doesnot depend on texture
     //***********************************************
 }
