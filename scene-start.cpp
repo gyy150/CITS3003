@@ -13,13 +13,14 @@
 
 GLint windowHeight=640, windowWidth=960;
 
+
 // gnatidread.cpp is the CITS3003 "Graphics n Animation Tool Interface & Data Reader" code
 // This file contains parts of the code that you shouldn't need to modify (but, you can).
 #include "gnatidread.h"
 
 using namespace std;        // Import the C++ standard functions (e.g., min)
 
-
+unsigned int animation_start = 0;
 // IDs for the GLSL program and GLSL variables.
 GLuint shaderProgram; // The number identifying the GLSL shader program
 GLuint vPosition, vNormal, vTexCoord; // IDs for vshader input vars (from glGetAttribLocation)
@@ -376,7 +377,7 @@ void drawMesh(SceneObject sceneObj) {
     // in the sceneObj structure (see near the top of the program).
 
     //******************Part B*************************************
-    mat4 model = Translate(sceneObj.loc) * RotateZ(sceneObj.angles[2]) * RotateY(sceneObj.angles[1]) * RotateX(sceneObj.angles[0])  * Scale(sceneObj.scale);
+    mat4 model =  Translate(sceneObj.loc) * RotateZ(sceneObj.angles[2]) * RotateY(sceneObj.angles[1]) * RotateX(sceneObj.angles[0])  * Scale(sceneObj.scale);
     //*************************************************************
 
     //mat4 model = Translate(sceneObj.loc) * Scale(sceneObj.scale);
@@ -410,8 +411,15 @@ void display( void ) {
 
 
     //********************************************************
-
+    float radius = sqrt(pow((sceneObjs[1].loc[0] - sceneObjs[2].loc[0]),2) + pow((sceneObjs[1].loc[2] - sceneObjs[2].loc[2]),2)   );
     SceneObject lightObj1 = sceneObjs[1];
+    if( animation_start != 0    ){
+        float time = float ( glutGet(GLUT_ELAPSED_TIME) - animation_start ) / 1000.0;
+        lightObj1.loc[0] = sceneObjs[2].loc[0] + radius*cos(time);
+        sceneObjs[1].loc[0] = sceneObjs[2].loc[0] + radius*cos(time);
+        lightObj1.loc[2] = sceneObjs[2].loc[2] + radius*sin(time);
+        sceneObjs[1].loc[2] = sceneObjs[2].loc[2] + radius*sin(time);
+    }
     vec4 lightPosition = view * lightObj1.loc ;
     glUniform4fv( glGetUniformLocation(shaderProgram, "LightPosition"), 1, lightPosition); CheckError();
     //*****************Part I*****************************
@@ -488,7 +496,16 @@ static void lightMenu(int id) {
         setToolCallbacks(adjustLocXZ, camRotZ(),
                          adjustBrightnessY, mat2( 1.0, 0.0, 0.0, 10.0) );
 
-    } else if(id>=71 && id<=74) {
+    }
+    else if(id == 68) {
+        animation_start = 0;
+        cout << "ololol" << endl;
+    }
+    else if(id == 69) {
+        animation_start = glutGet(GLUT_ELAPSED_TIME);
+        cout << "ololol" << endl;
+    }
+    else if(id>=71 && id<=74) {
         toolObj = 1;
         setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
                          adjustBlueBrightness, mat2(1.0, 0, 0, 1.0) );
@@ -507,7 +524,9 @@ static void lightMenu(int id) {
     }
     //****************************************************
 
-    else { printf("Error in lightMenu\n");
+    else {
+        cout << "Error in lightMenu\n" << endl;
+        printf("Error in lightMenu\n");
         exit(1);
     }
 }
@@ -615,17 +634,19 @@ static void makeMenu() {
 
     int lightMenuId = glutCreateMenu(lightMenu);
     glutAddMenuEntry("Move Light 1",70);
+    glutAddMenuEntry("Animation--Rotate Light 1",69);
+    glutAddMenuEntry("Stop animation",68);
     glutAddMenuEntry("R/G/B/All Light 1",71);
     glutAddMenuEntry("Move Light 2",80);
     glutAddMenuEntry("R/G/B/All Light 2",81);
 
     glutCreateMenu(mainmenu);
     glutAddMenuEntry("Rotate/Move Camera",50);
-    
+
     /************* PART J **********************/
     glutAddMenuEntry("Duplicate",42);
     /*******************************************/
-    
+
     glutAddSubMenu("Add object", objectId);
     glutAddMenuEntry("Position/Scale", 41);
     glutAddMenuEntry("Rotation/Texture Scale", 55);
