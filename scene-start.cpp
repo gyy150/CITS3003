@@ -21,6 +21,8 @@ GLint windowHeight=640, windowWidth=960;
 using namespace std;        // Import the C++ standard functions (e.g., min)
 
 unsigned int animation_start = 0;
+float theta = 0.0;
+float radius = 0.0 ;
 // IDs for the GLSL program and GLSL variables.
 GLuint shaderProgram; // The number identifying the GLSL shader program
 GLuint vPosition, vNormal, vTexCoord; // IDs for vshader input vars (from glGetAttribLocation)
@@ -239,27 +241,31 @@ static void dupeObject() {
     sceneObjs[nObjects].loc[2] = currPos[1];
     sceneObjs[nObjects].loc[3] = 1.0;
 
-        sceneObjs[nObjects].scale = 0.005;
+    sceneObjs[nObjects].scale = sceneObjs[currObject].scale;
 
-    sceneObjs[nObjects].rgb[0] = 0.7; sceneObjs[nObjects].rgb[1] = 0.7;
-    sceneObjs[nObjects].rgb[2] = 0.7; sceneObjs[nObjects].brightness = 1.0;
+    sceneObjs[nObjects].rgb[0] =sceneObjs[currObject].rgb[0];
+    sceneObjs[nObjects].rgb[1] = sceneObjs[currObject].rgb[1];
+    sceneObjs[nObjects].rgb[2] = sceneObjs[currObject].rgb[2];
+    sceneObjs[nObjects].brightness = sceneObjs[currObject].brightness;
 
-    sceneObjs[nObjects].diffuse = 1.0; sceneObjs[nObjects].specular = 0.5;
-    sceneObjs[nObjects].ambient = 0.7; sceneObjs[nObjects].shine = 10.0;
+    sceneObjs[nObjects].diffuse = sceneObjs[currObject].diffuse;
+    sceneObjs[nObjects].specular = sceneObjs[currObject].specular;
+    sceneObjs[nObjects].ambient = sceneObjs[currObject].ambient;
+    sceneObjs[nObjects].shine = sceneObjs[currObject].shine;
 
-    sceneObjs[nObjects].angles[0] = 0.0; sceneObjs[nObjects].angles[1] = 180.0;
-    sceneObjs[nObjects].angles[2] = 0.0;
+    sceneObjs[nObjects].angles[0] = sceneObjs[currObject].angles[0];
+    sceneObjs[nObjects].angles[1] = sceneObjs[currObject].angles[1];
+    sceneObjs[nObjects].angles[2] = sceneObjs[currObject].angles[2];
 
     sceneObjs[nObjects].meshId = sceneObjs[currObject].meshId;
     sceneObjs[nObjects].texId = sceneObjs[currObject].texId;
-    sceneObjs[nObjects].texScale = 2.0;
+    sceneObjs[nObjects].texScale = sceneObjs[currObject].texScale;
 
     toolObj = currObject = nObjects++;
     setToolCallbacks(adjustLocXZ, camRotZ(),
                      adjustScaleY, mat2(0.05, 0, 0, 10.0) );
     glutPostRedisplay();
 }
-
 
 //------Add an object to the scene
 
@@ -410,16 +416,42 @@ void display( void ) {
     glUniformMatrix4fv( modelViewU, 1, GL_TRUE, view );
 
 
-    //********************************************************
-    float radius = sqrt(pow((sceneObjs[1].loc[0] - sceneObjs[2].loc[0]),2) + pow((sceneObjs[1].loc[2] - sceneObjs[2].loc[2]),2)   );
+    //*********************Part J*********************************************
+    if(animation_start == 0){
+        //float radius = sqrt(pow((sceneObjs[1].loc[0] - sceneObjs[2].loc[0]),2) + pow((sceneObjs[1].loc[2] - sceneObjs[2].loc[2]),2)   );
+        //cout << radius <<"lolol" << endl;
+        //radius = radius;
+        radius = sqrt(pow((sceneObjs[1].loc[0] - sceneObjs[2].loc[0]),2) + pow((sceneObjs[1].loc[2] - sceneObjs[2].loc[2]),2)   );
+        float x1 = sceneObjs[1].loc[0];
+        float z1 = sceneObjs[1].loc[2];
+        float x2 = sceneObjs[2].loc[0];
+        float z2 = sceneObjs[2].loc[2];
+
+        if(x1 > x2 && z1 > z2  ){
+            theta = atan( (x1-x2)/(z1 - z2)  );
+        }
+        else if(x1 < x2 && z1 > z2){
+            theta = atan( (x1-x2)/(z1 - z2) ) + M_PI;
+        }
+        else if(x1 < x2 && z1 < z2) {
+            theta = atan( (x1-x2)/(z1 - z2) ) + M_PI;
+        }
+        else if( x1 > x2 && z1 < z2 ) {
+            theta = atan( (x1-x2)/(z1 - z2) );
+        }
+    }
+
     SceneObject lightObj1 = sceneObjs[1];
     if( animation_start != 0    ){
+        cout << radius <<endl;
         float time = float ( glutGet(GLUT_ELAPSED_TIME) - animation_start ) / 1000.0;
-        lightObj1.loc[0] = sceneObjs[2].loc[0] + radius*cos(time);
-        sceneObjs[1].loc[0] = sceneObjs[2].loc[0] + radius*cos(time);
-        lightObj1.loc[2] = sceneObjs[2].loc[2] + radius*sin(time);
-        sceneObjs[1].loc[2] = sceneObjs[2].loc[2] + radius*sin(time);
+        lightObj1.loc[0] = sceneObjs[2].loc[0] + radius*cos(time + theta);
+        sceneObjs[1].loc[0] = sceneObjs[2].loc[0] + radius*cos(time + theta);
+        lightObj1.loc[2] = sceneObjs[2].loc[2] + radius*sin(time + theta);
+        sceneObjs[1].loc[2] = sceneObjs[2].loc[2] + radius*sin(time + theta);
     }
+
+    //***********************************************************************
     vec4 lightPosition = view * lightObj1.loc ;
     glUniform4fv( glGetUniformLocation(shaderProgram, "LightPosition"), 1, lightPosition); CheckError();
     //*****************Part I*****************************
