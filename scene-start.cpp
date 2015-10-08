@@ -245,6 +245,7 @@ static void dupeObject() {
 
     sceneObjs[nObjects].rgb[0] =sceneObjs[currObject].rgb[0];
     sceneObjs[nObjects].rgb[1] = sceneObjs[currObject].rgb[1];
+<<<<<<< HEAD
     sceneObjs[nObjects].rgb[2] = sceneObjs[currObject].rgb[2];
     sceneObjs[nObjects].brightness = sceneObjs[currObject].brightness;
 
@@ -254,6 +255,17 @@ static void dupeObject() {
     sceneObjs[nObjects].shine = sceneObjs[currObject].shine;
 
     sceneObjs[nObjects].angles[0] = sceneObjs[currObject].angles[0];
+=======
+    sceneObjs[nObjects].rgb[2] = sceneObjs[currObject].rgb[2]; 
+    sceneObjs[nObjects].brightness = sceneObjs[currObject].brightness;
+
+    sceneObjs[nObjects].diffuse = sceneObjs[currObject].diffuse; 
+    sceneObjs[nObjects].specular = sceneObjs[currObject].specular;
+    sceneObjs[nObjects].ambient = sceneObjs[currObject].ambient; 
+    sceneObjs[nObjects].shine = sceneObjs[currObject].shine;
+
+    sceneObjs[nObjects].angles[0] = sceneObjs[currObject].angles[0]; 
+>>>>>>> 7a0f1103fd041779f2026ae22c1baad47a2f8cca
     sceneObjs[nObjects].angles[1] = sceneObjs[currObject].angles[1];
     sceneObjs[nObjects].angles[2] = sceneObjs[currObject].angles[2];
 
@@ -347,7 +359,7 @@ void init( void ) {
     sceneObjs[2].loc = vec4(4.0, 2.0, 2.0, 1.0);
     sceneObjs[2].scale = 0.3;
     sceneObjs[2].texId = 0; // Plain texture
-    sceneObjs[2].brightness = 0.4;
+    sceneObjs[2].brightness = 10;
     //****************************************************
 
     addObject(rand() % numMeshes); // A test mesh
