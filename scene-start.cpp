@@ -239,20 +239,25 @@ static void dupeObject() {
     sceneObjs[nObjects].loc[2] = currPos[1];
     sceneObjs[nObjects].loc[3] = 1.0;
 
-        sceneObjs[nObjects].scale = 0.005;
+    sceneObjs[nObjects].scale = sceneObjs[currObject].scale;
 
-    sceneObjs[nObjects].rgb[0] = 0.7; sceneObjs[nObjects].rgb[1] = 0.7;
-    sceneObjs[nObjects].rgb[2] = 0.7; sceneObjs[nObjects].brightness = 1.0;
+    sceneObjs[nObjects].rgb[0] =sceneObjs[currObject].rgb[0];
+    sceneObjs[nObjects].rgb[1] = sceneObjs[currObject].rgb[1];
+    sceneObjs[nObjects].rgb[2] = sceneObjs[currObject].rgb[2]; 
+    sceneObjs[nObjects].brightness = sceneObjs[currObject].brightness;
 
-    sceneObjs[nObjects].diffuse = 1.0; sceneObjs[nObjects].specular = 0.5;
-    sceneObjs[nObjects].ambient = 0.7; sceneObjs[nObjects].shine = 10.0;
+    sceneObjs[nObjects].diffuse = sceneObjs[currObject].diffuse; 
+    sceneObjs[nObjects].specular = sceneObjs[currObject].specular;
+    sceneObjs[nObjects].ambient = sceneObjs[currObject].ambient; 
+    sceneObjs[nObjects].shine = sceneObjs[currObject].shine;
 
-    sceneObjs[nObjects].angles[0] = 0.0; sceneObjs[nObjects].angles[1] = 180.0;
-    sceneObjs[nObjects].angles[2] = 0.0;
+    sceneObjs[nObjects].angles[0] = sceneObjs[currObject].angles[0]; 
+    sceneObjs[nObjects].angles[1] = sceneObjs[currObject].angles[1];
+    sceneObjs[nObjects].angles[2] = sceneObjs[currObject].angles[2];
 
     sceneObjs[nObjects].meshId = sceneObjs[currObject].meshId;
     sceneObjs[nObjects].texId = sceneObjs[currObject].texId;
-    sceneObjs[nObjects].texScale = 2.0;
+    sceneObjs[nObjects].texScale = sceneObjs[currObject].texScale;
 
     toolObj = currObject = nObjects++;
     setToolCallbacks(adjustLocXZ, camRotZ(),
@@ -341,7 +346,7 @@ void init( void ) {
     sceneObjs[2].loc = vec4(4.0, 2.0, 2.0, 1.0);
     sceneObjs[2].scale = 0.3;
     sceneObjs[2].texId = 0; // Plain texture
-    sceneObjs[2].brightness = 0.4;
+    sceneObjs[2].brightness = 10;
     //****************************************************
 
     addObject(rand() % numMeshes); // A test mesh
