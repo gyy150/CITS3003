@@ -12,7 +12,7 @@ in  vec2 texCoord;  // The third coordinate is always 0.0 and is discarded
 out vec4 fColor;
 
 uniform sampler2D texture;
-#in float texScale;
+uniform float texScale;
 
 void
 main()
@@ -70,6 +70,11 @@ main()
     //********************************************
     color.a = 1.0;
     //********************Part H*********************
-    fColor = color * texture2D( texture, texCoord * 2.0 ) + vec4(light_attenuation * specular , 1.0) + vec4(light_attenuation2 * specular2 , 1.0)        ;  //specular component doesnot depend on texture
+    //specular component does not depend on texture
+    fColor =    color 
+                //get texel RGB color
+                * texture2D( texture , texCoord * texScale )      
+                + vec4(light_attenuation * specular , 1.0)
+                + vec4(light_attenuation2 * specular2 , 1.0);  
     //***********************************************
 }
