@@ -12,6 +12,7 @@ in  vec2 texCoord;  // The third coordinate is always 0.0 and is discarded
 out vec4 fColor;
 
 uniform sampler2D texture;
+#in float texScale;
 
 void
 main()
