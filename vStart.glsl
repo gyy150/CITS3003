@@ -23,7 +23,7 @@ void main()
     // Transform vertex normal into eye coordinates (assumes scaling is uniform across dimensions)
     vec3 N = normalize( (ModelView*vec4(vNormal, 0.0)).xyz );
 
-    //pass the normal in eye coordinate to fragment shader
+    //and pass the normal in eye coordinate to fragment shader
     v_Normal = N;
 
     gl_Position = Projection * ModelView * vPosition;

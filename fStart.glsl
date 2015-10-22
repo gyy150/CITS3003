@@ -73,7 +73,7 @@ main()
     //specular component does not depend on texture
     fColor =    color 
                 //get texel RGB color
-                * texture2D( texture , texCoord * texScale )      
+                * texture2D( texture , texCoord * texScale );   //get texel RGB      
                 + vec4(light_attenuation * specular , 1.0)
                 + vec4(light_attenuation2 * specular2 , 1.0);  
     //***********************************************

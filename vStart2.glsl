@@ -1,12 +1,16 @@
 #version 130
 
-
+uniform float Shininess;
 in  vec4 vPosition;
 in  vec3 vNormal;
 in  vec2 vTexCoord;
 
 out vec2 texCoord;
 out vec4 color;
+out float shine;
+out vec3 v_Normal;
+out vec3 pos;
+
 
 // Animation stuff (Part 2)
 in ivec4 boneIDs;
@@ -60,6 +64,15 @@ void main()
     vec3 globalAmbient = vec3(0.1, 0.1, 0.1);
     color.rgb = globalAmbient  + ambient + diffuse + specular;
     color.a = 1.0;
+
+    // Transform vertex position into eye coordinates , pass it into fragmnet shader
+    pos = (ModelView * vPosition).xyz;
+
+     /* Transform vertex normal into eye coordinates 
+    (assumes scaling is uniform across dimensions)
+    and pass the normal in eye coordinate to fragment shader */
+
+    vec3 v_Normal = normalize( (ModelView*vec4(vNormal, 0.0)).xyz );
 
     gl_Position = Projection * ModelView * vPosition;
     texCoord = vTexCoord;

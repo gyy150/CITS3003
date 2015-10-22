@@ -323,7 +323,7 @@ void init( void ) {
     glGenTextures(numTextures, textureIDs); CheckError(); // Allocate texture objects
 
     // Load shaders and use the resulting shader program
-    shaderProgram = InitShader( "vStart2.glsl", "fStart.glsl" );
+    shaderProgram = InitShader( "vStart.glsl", "fStart.glsl" );
 
     glUseProgram( shaderProgram ); CheckError();
 
